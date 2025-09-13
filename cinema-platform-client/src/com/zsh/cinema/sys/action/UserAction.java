@@ -160,7 +160,21 @@ public class UserAction {
     * 修改影片
     * */
     public static void updateFilm(){
-
+        String id = InputUtil.getInputText("请输入影片编号：");
+        String name = InputUtil.getInputText("请输入影片名称：");
+        String producer = InputUtil.getInputText("请输入制片人：");
+        String description = InputUtil.getInputText("亲输入影片简介：");
+        Film film = new Film(id,name,producer,description);
+        Message<Film> msg = new Message<>("updateFilm",film);
+        // result接收结果并判断
+        Integer result = SocketUtil.sendMessage(msg);
+        if (result == null || result == 0) {
+            System.out.println("修改失败QWQ......请稍后再试吧！");
+        }else if (result == 1){ // 修改成功
+            System.out.println("修改成功！");
+        }else {
+            System.out.println("未找到与\""+id+"\"相关的影片信息QWQ......");
+        }
     }
     /*
     * 删除影片
