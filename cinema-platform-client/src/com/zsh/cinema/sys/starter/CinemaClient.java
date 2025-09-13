@@ -8,6 +8,7 @@ import com.zsh.cinema.sys.util.InputUtil;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 /*
@@ -26,17 +27,30 @@ public class CinemaClient {
         int number = InputUtil.getInputInteger("请选择菜单编号：",1,menus.length);
         Menu select = menus[number-1];
         switch (select.getAction()){
-            case "showChildren":
-                List<Menu> children = select.getChildren();
-                Menu[] childMenus = children.toArray(new Menu[children.size()]);
-                showInterface(childMenus);
-                break;
-            case "goBackLogin":
-                showInterface(MenuManager.LOGIN_MENUS);
-                break;
             case "login":
-                UserAction.login();
-                showInterface(MenuManager.USER_MENUS);
+                Map<String, Object> result = UserAction.login();
+                if (result == null) { // 登录失败（IO异常/网络不通/登录失败）
+                    System.out.println("账号或密码错误，请稍后重试......");
+                    showInterface(MenuManager.LOGIN_MENUS);
+                }else {
+                    int process = (int)result.get("process");
+                    if (process == 1) { // 登录成功
+                        boolean isManager = (Boolean) result.get("manager");
+                        Menu[] mainMenu = isManager ? MenuManager.MANAGER_MENUS : MenuManager.USER_MENUS;
+                        showInterface(mainMenu);
+                    } else {
+                        String msg;
+                        if (process == 0) { // 账号或密码错误
+                            msg = "账号或密码错误，请稍后重试......";
+                        } else if (process == -1) { // 账号不存在
+                            msg = "账号不存在，请先注册哦~~~";
+                        }else { // 账号已被冻结
+                            msg = "账号已被冻结，请申请解冻哦~";
+                        }
+                        System.out.println(msg);
+                        showInterface(MenuManager.LOGIN_MENUS);
+                    }
+                }
                 break;
             case "register":
                 UserAction.register();
@@ -48,6 +62,14 @@ public class CinemaClient {
                 break;
             case "unfrozenApply":
                 UserAction.unfrozenApply();
+                showInterface(MenuManager.LOGIN_MENUS);
+                break;
+            case "showChildren":
+                List<Menu> children = select.getChildren();
+                Menu[] childMenus = children.toArray(new Menu[children.size()]);
+                showInterface(childMenus);
+                break;
+            case "goBackLogin":
                 showInterface(MenuManager.LOGIN_MENUS);
                 break;
             case "goBackMain":

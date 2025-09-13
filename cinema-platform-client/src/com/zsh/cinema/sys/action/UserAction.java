@@ -7,6 +7,7 @@ import com.zsh.cinema.sys.util.SocketUtil;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Map;
 
 /*
 * 用户行为
@@ -53,8 +54,13 @@ public class UserAction {
     /*
     * 登录
     * */
-    public static void login(){
+    public static Map<String,Object> login(){
+        String username = InputUtil.getInputText("请输入账号：");
+        String password = InputUtil.getInputText("请输入密码：");
 
+        User user = new User(username,password,null);
+        Message<User> msg = new Message<>("login",user);
+        return SocketUtil.sendMessage(msg);
     }
     /*
     * 找回密码

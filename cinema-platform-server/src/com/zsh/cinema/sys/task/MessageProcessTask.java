@@ -7,7 +7,7 @@ import com.zsh.cinema.sys.util.FileUtil;
 import com.zsh.cinema.sys.util.SocketUtil;
 
 import java.net.Socket;
-import java.util.List;
+import java.util.*;
 import java.util.function.Predicate;
 
 /*
@@ -33,13 +33,51 @@ public class MessageProcessTask implements Runnable {
                 case "register":
                     processRegister(msg);
                     break;
-
                 // 登录
                 case "login":
-
+                    processLogin(msg);
                     break;
             }
         }
+    }
+    /*
+     * 功能：处理登录请求
+     * 参数：
+     * 返回值：
+     * */
+    private void processLogin(Message msg) {
+        User loginUser = (User)msg.getData();
+        // 读取存档的用户信息
+        List<User> storageUsers = FileUtil.readData(FileUtil.USER_FILE);
+        if (storageUsers.isEmpty()) {
+            User user = new User("admin","123456","admin");
+            user.setManager(true); // 设置为管理员
+            storageUsers.add(user); // 添加至用户列表
+        }
+        //
+        Map<String, Object> result = new HashMap<>();
+        // 查找用户名与登录用户的用户名匹配的账号
+        Optional<User> optionalUser = storageUsers.stream().filter(user -> user.getUsername().equals(loginUser.getUsername())).findFirst();
+        // 如果找到了
+        if (optionalUser.isPresent()){
+            User user = optionalUser.get();// 取出来
+            int state = user.getState(); // 获取用户状态
+            if (state == 1){ // 正常
+                // 密码匹配
+                if (loginUser.getPassword().equals(user.getPassword())) {
+                    result.put("process", 1);
+                    result.put("manager", user.isManager());
+                }else { // 密码不匹配
+                    result.put("process",0);
+                }
+            } else { // 账号冻结
+                result.put("process",-2);
+            }
+        }else { // 账号不存在
+            result.put("process",-1);
+        }
+
+        SocketUtil.sendBack(client,result);
     }
 
     /*
