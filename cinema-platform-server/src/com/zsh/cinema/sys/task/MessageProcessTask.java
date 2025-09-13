@@ -1,6 +1,7 @@
 package com.zsh.cinema.sys.task;
 
 
+import com.zsh.cinema.sys.entity.Film;
 import com.zsh.cinema.sys.entity.UnfrozenApply;
 import com.zsh.cinema.sys.entity.User;
 import com.zsh.cinema.sys.message.Message;
@@ -46,9 +47,43 @@ public class MessageProcessTask implements Runnable {
                 case "unfrozenApply":
                     processUnfrozenApply(msg);
                     break;
+                // 增加影片
+                case "addFilm":
+                    processAddFilm(msg);
+                    break;
+                // 删除影片
+                case "deleteFilm":
+
+                    break;
+                // 修改影片
+                case "updateFilm":
+
+                    break;
+                // 查看影片
+                case "getFilmList":
+
+                    break;
             }
         }
     }
+
+    /*
+     * 功能：处理添加影片请求
+     * 参数：
+     * 返回值：
+     * */
+    private void processAddFilm(Message msg) {
+        // 从客户端获取管理员添加的影片信息
+        Film film = (Film) msg.getData();
+        // 读取存储在data文件夹里的影片信息
+        List<Film> films = FileUtil.readData(FileUtil.FILM_FILE);
+        // 将影片添加到影片列表
+        films.add(film);
+        // 保存修改后的影片列表
+        boolean success = FileUtil.saveData(films,FileUtil.FILM_FILE);
+        SocketUtil.sendBack(client,success ? 1 : 0 );
+    }
+
     /*
      * 功能：处理解冻申请请求
      * 参数：

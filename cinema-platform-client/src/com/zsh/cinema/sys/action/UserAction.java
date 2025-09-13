@@ -1,5 +1,6 @@
 package com.zsh.cinema.sys.action;
 
+import com.zsh.cinema.sys.entity.Film;
 import com.zsh.cinema.sys.entity.UnfrozenApply;
 import com.zsh.cinema.sys.entity.User;
 import com.zsh.cinema.sys.message.Message;
@@ -140,7 +141,20 @@ public class UserAction {
     * 增加影片
     * */
     public static void addFilm(){
+        String name = InputUtil.getInputText("请输入影片名称：");
+        String producer = InputUtil.getInputText("请输入制片人：");
+        String description = InputUtil.getInputText("亲输入影片简介：");
 
+        Film film = new Film(IdGenerator.generatorId(10),name,producer,description);
+
+        Message<Film> msg = new Message<>("addFilm",film);
+
+        Integer result = SocketUtil.sendMessage(msg);
+        if (result == null || result == 0) {
+            System.out.println("添加失败，请稍后重试......");
+        }else {
+            System.out.println("添加成功！");
+        }
     }
     /*
     * 修改影片

@@ -75,17 +75,54 @@ public class CinemaClient {
             case "goBackMain":
                 showInterface(MenuManager.USER_MENUS);
                 break;
+                // 增加影片
+            case "addFilm":
+                UserAction.addFilm();
+                showSiblingMenus(select);
+                break;
+                // 删除影片
+            case "deleteFilm":
+                UserAction.deleteFilm();
+                showSiblingMenus(select);
+                break;
+                // 修改影片
+            case "updateFilm":
+                UserAction.updateFilm();
+                showSiblingMenus(select);
+                break;
+                // 查看影片
+            case "getFilmList":
+                UserAction.getFilmList();
+                showSiblingMenus(select);
+                break;
+                // 退出
             case "quit":
                 UserAction.quit();
                 break;
-            default: // 其他子菜单操作，需要重新展示与该子菜单同级的
-                Menu parent = select.getParent();
+            default: // 其他子菜单操作，需要重新展示与该子菜单同级的子菜单列表
+                showSiblingMenus(select);
+
+/*                Menu parent = select.getParent();
                 List<Menu> menuList = parent.getChildren();
                 Menu[] menus1 = menuList.toArray(new Menu[menuList.size()]);
                 showInterface(menus1);
-                break;
+                break;*/
         }
     }
+    /*
+    * 功能：展示与所选菜单同级的子菜单列表
+    *   通过参数select的父菜单，再通过父菜单，获取它的子菜单，即与select同级的菜单
+    * 参数：select
+    * 返回值：void
+    * */
+    private static void showSiblingMenus(Menu select) {
+        Menu parent = select.getParent();
+        List<Menu> children = parent.getChildren();
+        Menu[] menus = children.toArray(new Menu[children.size()]);
+        showInterface(menus);
+    }
+
+
 
 
 
