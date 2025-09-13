@@ -29,8 +29,14 @@ public class MessageProcessTask implements Runnable {
         // 信息处理
         if (msg != null) {
             switch (msg.getAction()){
+                // 注册
                 case "register":
                     processRegister(msg);
+                    break;
+
+                // 登录
+                case "login":
+
                     break;
             }
         }
@@ -46,12 +52,12 @@ public class MessageProcessTask implements Runnable {
         // 比对文件内是否已经存在用户
         List<User> storageUsers = FileUtil.readData(FileUtil.USER_FILE);
         if (storageUsers.isEmpty()){
-            // 如果说存档信息为空，表示没用如何数据
-            User user = new User("admin","123456","ZSH");
-            user.setManager(true);
-            storageUsers.add(user);
+            // 如果说存档信息为空，表明没有任何用户注册
+            User user = new User("admin","123456","admin");
+            user.setManager(true); // 设置为管理员
+            storageUsers.add(user); // 添加至用户列表
         }
-
+        int result;
         /*boolean exists = storageUsers.stream().anyMatch(new Predicate<User>() {
                 @Override
                 public boolean test(User user) {
@@ -61,12 +67,18 @@ public class MessageProcessTask implements Runnable {
         boolean exists = storageUsers.stream().anyMatch(user-> user.getUsername().equals(registerUser.getUsername()));
         if (exists) {
             // 账号已被注册
-            SocketUtil.sendBack(client,-1);
+            result = -1;
+//            SocketUtil.sendBack(client,-1);
+            // 如果账号已经存在
         }else {
             // 账号未被注册，注册账号
             storageUsers.add(registerUser);
+            // 用户存档
             boolean success = FileUtil.saveData(storageUsers, FileUtil.USER_FILE);
-            SocketUtil.sendBack(client, success ? 1 : 0);
+            result = success ? 1 : 0;
+//            SocketUtil.sendBack(client, success ? 1 : 0);
         }
+        // 向客户端反馈结果
+        SocketUtil.sendBack(client,result);
     }
 }
