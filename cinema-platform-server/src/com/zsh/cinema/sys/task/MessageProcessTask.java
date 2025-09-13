@@ -57,7 +57,7 @@ public class MessageProcessTask implements Runnable {
                     break;
                 // 修改影片
                 case "updateFilm":
-
+                    processUpdateFilm(msg);
                     break;
                 // 查看影片
                 case "getFilmList":
@@ -65,6 +65,32 @@ public class MessageProcessTask implements Runnable {
                     break;
             }
         }
+    }
+    /*
+     * 功能：处理修改影片请求
+     * 参数：
+     * 返回值：
+     * */
+    private void processUpdateFilm(Message msg) {
+        Film updateFilm = (Film) msg.getData();
+        List<Film> films = FileUtil.readData(FileUtil.FILM_FILE);
+
+        int index = -1;
+        for (int i = 0; i < films.size(); i++) {
+            Film film = films.get(i);
+            if (updateFilm.getId().equals(film.getId())) {
+                index = i;
+                break;
+            }
+        }
+        if (index == -1) { // 说明修改的影片信息不存在
+            SocketUtil.sendBack(client,-1);
+        }else {
+            films.set(index,updateFilm);
+            boolean success = FileUtil.saveData(films,FileUtil.FILM_FILE);
+            SocketUtil.sendBack(client,success ? 1 : 0);
+        }
+
     }
 
     /*
