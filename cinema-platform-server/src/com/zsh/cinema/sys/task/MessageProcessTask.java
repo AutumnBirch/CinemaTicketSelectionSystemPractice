@@ -37,9 +37,41 @@ public class MessageProcessTask implements Runnable {
                 case "login":
                     processLogin(msg);
                     break;
+                // 找回密码
+                case "getPasswordBack":
+                    processGetPasswordBack(msg);
+                    break;
             }
         }
     }
+    /*
+     * 功能：处理找回密码请求请求
+     * 参数：
+     * 返回值：
+     * */
+    private void processGetPasswordBack(Message msg) {
+        User getBackUser = (User) msg.getData();
+        // 读取存档的用户信息
+        List<User> storageUsers = FileUtil.readData(FileUtil.USER_FILE);
+        if (storageUsers.isEmpty()) {
+            User user = new User("admin","123456","admin");
+            user.setManager(true); // 设置为管理员
+            storageUsers.add(user); // 添加至用户列表
+            FileUtil.saveData(storageUsers,FileUtil.USER_FILE);
+        }
+        String result = null;
+        Optional<User> optionalUser = storageUsers.stream().filter(user -> user.getUsername().equals(getBackUser.getUsername())).findFirst();
+        if (optionalUser.isPresent()) { // isPresent用于检查optionalUser里面是否有东西
+            // 如果有
+            User user = optionalUser.get();
+            // 安全码匹配
+            if (user.getSecurityCode().equals(getBackUser.getSecurityCode())){
+                result = user.getPassword();
+            }
+        }
+        SocketUtil.sendBack(client,result);
+    }
+
     /*
      * 功能：处理登录请求
      * 参数：

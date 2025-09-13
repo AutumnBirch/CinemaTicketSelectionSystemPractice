@@ -66,7 +66,19 @@ public class UserAction {
     * 找回密码
     * */
     public static void getPasswordBack(){
+        String username = InputUtil.getInputText("请输入账号：");
+        String securityCode = InputUtil.getInputText("请输入安全码：");
 
+        User user = new User(username, null, securityCode);
+
+        Message<User> msg = new Message<>("getPasswordBack",user);
+        String result = SocketUtil.sendMessage(msg);
+
+        if (result == null) {
+            System.out.println("安全码不正确，请重新尝试哦~");
+        }else {
+            System.out.println("您的密码是："+result);
+        }
     }
     /*
     * 申请解冻
