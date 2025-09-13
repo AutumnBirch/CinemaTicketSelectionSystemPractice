@@ -180,7 +180,16 @@ public class UserAction {
     * 删除影片
     * */
     public static void deleteFilm(){
-
+        String id = InputUtil.getInputText("请输入影片编号：");
+        Message<String> msg = new Message<>("deleteFilm",id);
+        Integer result = SocketUtil.sendMessage(msg);
+        if (result == null || result == 0) {
+            System.out.println("删除失败QWQ......请稍后再试吧！");
+        }else if (result == 1){ // 修改成功
+            System.out.println("删除成功！");
+        }else {
+            System.out.println("未找到与\""+id+"\"相关的影片信息QWQ......");
+        }
     }
     /*
     * 查看影厅

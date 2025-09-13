@@ -53,7 +53,7 @@ public class MessageProcessTask implements Runnable {
                     break;
                 // 删除影片
                 case "deleteFilm":
-
+                    processDeleteFilm(msg);
                     break;
                 // 修改影片
                 case "updateFilm":
@@ -66,6 +66,32 @@ public class MessageProcessTask implements Runnable {
             }
         }
     }
+    /*
+     * 功能：处理删除影片请求
+     * 参数：
+     * 返回值：
+     * */
+    private void processDeleteFilm(Message msg) {
+        String id = (String) msg.getData();
+        List<Film> films = FileUtil.readData(FileUtil.FILM_FILE);
+
+        int index = -1;
+        for (int i = 0; i < films.size(); i++) {
+            Film film = films.get(i);
+            if (id.equals(film.getId())) {
+                index = i;
+                break;
+            }
+        }
+        if (index == -1) { // 说明删除的影片信息不存在
+            SocketUtil.sendBack(client,-1);
+        }else {
+            films.remove(index);
+            boolean success = FileUtil.saveData(films,FileUtil.FILM_FILE);
+            SocketUtil.sendBack(client,success ? 1 : 0);
+        }
+    }
+
     /*
      * 功能：处理修改影片请求
      * 参数：
