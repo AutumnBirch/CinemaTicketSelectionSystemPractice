@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/cinema-platform.iml" filepath="$PROJECT_DIR$/cinema-platform.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cinema-platform-client/cinema-platform-client.iml" filepath="$PROJECT_DIR$/cinema-platform-client/cinema-platform-client.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cinema-platform-common/cinema-platform-common.iml" filepath="$PROJECT_DIR$/cinema-platform-common/cinema-platform-common.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cinema-platform-server/cinema-platform-server.iml" filepath="$PROJECT_DIR$/cinema-platform-server/cinema-platform-server.iml" />
+    </modules>
+  </component>
+</project>
