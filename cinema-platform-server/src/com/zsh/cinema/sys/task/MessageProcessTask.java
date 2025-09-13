@@ -1,6 +1,7 @@
 package com.zsh.cinema.sys.task;
 
 
+import com.zsh.cinema.sys.entity.UnfrozenApply;
 import com.zsh.cinema.sys.entity.User;
 import com.zsh.cinema.sys.message.Message;
 import com.zsh.cinema.sys.util.FileUtil;
@@ -41,9 +42,46 @@ public class MessageProcessTask implements Runnable {
                 case "getPasswordBack":
                     processGetPasswordBack(msg);
                     break;
+                // 解冻申请
+                case "unfrozenApply":
+                    processUnfrozenApply(msg);
+                    break;
             }
         }
     }
+    /*
+     * 功能：处理解冻申请请求
+     * 参数：
+     * 返回值：
+     * */
+    private void processUnfrozenApply(Message msg) {
+        UnfrozenApply apply = (UnfrozenApply) msg.getData();
+        // 读取存档的用户信息
+        List<User> storageUsers = FileUtil.readData(FileUtil.USER_FILE);
+        if (storageUsers.isEmpty()) {
+            User user = new User("admin","123456","admin");
+            user.setManager(true); // 设置为管理员
+            storageUsers.add(user); // 添加至用户列表
+            FileUtil.saveData(storageUsers,FileUtil.USER_FILE);
+        }
+        int result;
+        Optional<User> optionalUser = storageUsers.stream().filter(user -> user.getUsername().equals(apply.getUsername())).findFirst();
+        if (optionalUser.isPresent()) { // 账号存在
+            User user = optionalUser.get();
+            if (user.getState() == 1) { // 账号正常
+                result = -1;
+            }else { // 账号被冻结
+                List<UnfrozenApply> applies = FileUtil.readData(FileUtil.UNFROZEN_APPLY_FILE);
+                applies.add(apply);
+                boolean success = FileUtil.saveData(applies,FileUtil.UNFROZEN_APPLY_FILE);
+                result = success ? 1 : 0;
+            }
+        }else { // 账号不存在
+            result = -1;
+        }
+        SocketUtil.sendBack(client,result);
+    }
+
     /*
      * 功能：处理找回密码请求请求
      * 参数：

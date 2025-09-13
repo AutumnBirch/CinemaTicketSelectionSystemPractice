@@ -1,7 +1,9 @@
 package com.zsh.cinema.sys.action;
 
+import com.zsh.cinema.sys.entity.UnfrozenApply;
 import com.zsh.cinema.sys.entity.User;
 import com.zsh.cinema.sys.message.Message;
+import com.zsh.cinema.sys.util.IdGenerator;
 import com.zsh.cinema.sys.util.InputUtil;
 import com.zsh.cinema.sys.util.SocketUtil;
 
@@ -84,7 +86,18 @@ public class UserAction {
     * 申请解冻
     * */
     public static void unfrozenApply(){
-
+        String username = InputUtil.getInputText("请输入账号：");
+        String reason = InputUtil.getInputText("请输入原因：");
+        UnfrozenApply apply = new UnfrozenApply(IdGenerator.generatorId(10),username,reason);
+        Message<UnfrozenApply> msg = new Message<>("unfrozenApply",apply);
+        Integer result = SocketUtil.sendMessage(msg);
+        if (result == null || result == 0) {
+            System.out.println("解冻申请失败，请稍后重试~");
+        } else if (result == 1) {
+            System.out.println("解冻申请发送成功！");
+        }else {
+            System.out.println("账号未被冻结，无需申请~");
+        }
     }
     /*
     * 退出
