@@ -72,9 +72,12 @@ public class FileUtil {
             return (List<T>) ois.readObject();
         } catch (Exception e) {
             // 修改过，可能与注册时无法连接服务端的bug有关
-            throw new RuntimeException();
-//            e.printStackTrace();
-//            return new ArrayList<>();
+//            throw new RuntimeException();
+            // 又报错了，这里改成下面的样子，感觉应该是抛出异常的问题
+            // TMD，真是这里的问题，为什么抛出异常会无法连接服务端呢？因为没有返回内容吗？
+            // 没有下面那个集合，客户端就无法判断是否接受到了内容，然后就一直等着这边服务端端发送数据，得不到，于是就没有反应。man,what can i say;
+            e.printStackTrace();
+            return new ArrayList<>();
         }
     }
 }

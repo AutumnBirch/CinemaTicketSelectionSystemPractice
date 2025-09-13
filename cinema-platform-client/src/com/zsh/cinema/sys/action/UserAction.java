@@ -10,6 +10,7 @@ import com.zsh.cinema.sys.util.SocketUtil;
 
 import java.io.IOException;
 import java.net.Socket;
+import java.util.List;
 import java.util.Map;
 
 /*
@@ -135,6 +136,15 @@ public class UserAction {
     * 查看影片
     * */
     public static void getFilmList(){
+        String name = InputUtil.getInputText("请输入影片名称：");
+        Message<String> msg = new Message<>("getFilmList",name);
+        List<Film> films = SocketUtil.sendMessage(msg);
+        if (films == null || films.isEmpty()) {
+            System.out.println("未找到与\""+name+"\"相关的影片信息QWQ......");
+        }else {
+            System.out.println("影片编号\t\t\t影片名称\t制片人\t影片简介");
+            films.forEach(System.out::println);
+        }
 
     }
     /*
@@ -143,7 +153,7 @@ public class UserAction {
     public static void addFilm(){
         String name = InputUtil.getInputText("请输入影片名称：");
         String producer = InputUtil.getInputText("请输入制片人：");
-        String description = InputUtil.getInputText("亲输入影片简介：");
+        String description = InputUtil.getInputText("请输入影片描述：");
 
         Film film = new Film(IdGenerator.generatorId(10),name,producer,description);
 
@@ -163,7 +173,7 @@ public class UserAction {
         String id = InputUtil.getInputText("请输入影片编号：");
         String name = InputUtil.getInputText("请输入影片名称：");
         String producer = InputUtil.getInputText("请输入制片人：");
-        String description = InputUtil.getInputText("亲输入影片简介：");
+        String description = InputUtil.getInputText("请输入影片描述：");
         Film film = new Film(id,name,producer,description);
         Message<Film> msg = new Message<>("updateFilm",film);
         // result接收结果并判断

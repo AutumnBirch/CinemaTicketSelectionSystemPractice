@@ -85,6 +85,9 @@ public class SocketUtil {
         }catch (Exception e) {
             // 修改过，可能与注册时无法连接服务端的bug有关
             // 改回去试试
+            // 程序又报错了，报错里又有这一行，再改成带return null的两句试试。
+            // 已经确认bug来源了，是服务端FIleUtil工具类的readData方法没有返回给客户端数据导致的程序卡死，客户端接受不到数据，自然无法继续运行，最后就会输出服务端链接超时的报错信息
+            // 但是，由于这里也可能需要返回数据null，所以之后出现相关问题重点关注这里，现在还是选择抛出异常
             throw new RuntimeException();
 //            e.printStackTrace();
 //            return null;

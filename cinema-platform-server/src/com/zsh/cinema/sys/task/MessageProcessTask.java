@@ -8,9 +8,11 @@ import com.zsh.cinema.sys.message.Message;
 import com.zsh.cinema.sys.util.FileUtil;
 import com.zsh.cinema.sys.util.SocketUtil;
 
+import java.net.IDN;
 import java.net.Socket;
 import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /*
 * 消息处理任务
@@ -61,11 +63,32 @@ public class MessageProcessTask implements Runnable {
                     break;
                 // 查看影片
                 case "getFilmList":
-
+                    processGetFilmList(msg);
                     break;
             }
         }
     }
+    /*
+     * 功能：处理查看影片列表请求
+     * 参数：
+     * 返回值：
+     * */
+    private void processGetFilmList(Message msg) {
+        String name = (String) msg.getData();
+
+        List<Film> films = FileUtil.readData(FileUtil.FILM_FILE);
+
+        if (name == null || "".equals(name)) {
+            // 如果所查找的影片名称不存在或为空，返回data文件夹内的影片列表
+            SocketUtil.sendBack(client,films);
+        }else {
+            // 最后面的toList()可能出bug，啊，只是可能啊，也不一定
+            List<Film> result = films.stream().filter(film -> film.getName().contains(name) || name.contains(film.getName())).toList();
+            SocketUtil.sendBack(client,result);
+        }
+
+    }
+
     /*
      * 功能：处理删除影片请求
      * 参数：
