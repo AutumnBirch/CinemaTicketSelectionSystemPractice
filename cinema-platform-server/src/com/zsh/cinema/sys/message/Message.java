@@ -2,11 +2,11 @@ package com.zsh.cinema.sys.message;
 
 import java.io.Serializable;
 
-/*
+/**
 * 传输的信息
 * Message<T>：因为传输的信息是多种多样的，所以就选择可以改变的泛型
 * 发送信息选择的是对向流，故需先实现序列化接口
-* */
+*/
 public class Message<T> implements Serializable {
     // 动作、行为
     private String action;

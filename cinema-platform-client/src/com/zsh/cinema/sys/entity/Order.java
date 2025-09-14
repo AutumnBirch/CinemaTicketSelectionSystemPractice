@@ -1,9 +1,9 @@
 package com.zsh.cinema.sys.entity;
 
 import java.util.Date;
-/*
-* 订单
-* */
+/**
+* 订单类
+*/
 public class Order {
     /*
     * 编号

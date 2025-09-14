@@ -1,6 +1,7 @@
 package com.zsh.cinema.sys.starter;
 
 import com.zsh.cinema.sys.action.UserAction;
+import com.zsh.cinema.sys.entity.FilmHall;
 import com.zsh.cinema.sys.menu.Menu;
 import com.zsh.cinema.sys.menu.MenuManager;
 import com.zsh.cinema.sys.util.InputUtil;
@@ -17,7 +18,6 @@ import java.util.Scanner;
 public class CinemaClient {
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         showInterface(MenuManager.LOGIN_MENUS);
-//        showLoginMenu();
     }
     /*
     * 展示界面
@@ -93,6 +93,26 @@ public class CinemaClient {
                 // 查看影片
             case "getFilmList":
                 UserAction.getFilmList();
+                showSiblingMenus(select);
+                break;
+                // 增加影厅
+            case "addFilmHall":
+                UserAction.addFilmHall();
+                showSiblingMenus(select);
+                break;
+                // 删除影厅
+            case "deleteFilmHall":
+                UserAction.deleteFilmHall();
+                showSiblingMenus(select);
+                break;
+                // 修改影厅
+            case "updateFilmHall":
+                UserAction.updateFilmHall();
+                showSiblingMenus(select);
+                break;
+                // 查看影厅
+            case "getFilmHallList":
+                UserAction.getFilmHallList();
                 showSiblingMenus(select);
                 break;
                 // 退出

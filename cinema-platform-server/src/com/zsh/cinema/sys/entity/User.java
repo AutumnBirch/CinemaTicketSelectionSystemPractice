@@ -1,6 +1,5 @@
 package com.zsh.cinema.sys.entity;
 
-
 /*
 ER图 Entity Relational
 
@@ -13,35 +12,23 @@ ER图 Entity Relational
     dto(data transferobject) 数据传输对象
     domain 领域模型
     model 数据模型
-
 */
-
 
 import java.io.Serializable;
 
-/*
-*用户
-* */
+/**
+ * 用户类
+ */
 public class User implements Serializable {
-    /*
-    * 账号
-    * */
+    // 账号
     private String username;
-    /*
-    * 密码
-    * */
+    // 密码
     private String password;
-    /*
-    * 安全码（用于找回账户）
-    * */
+    // 安全码（用于找回账户）
     private String securityCode;
-    /*
-    * 管理员
-    * */
+    // 管理员
     private boolean manager;
-    /*
-    * 账号状态：-1-审核不通过，0-待审核，1-正常，2-冻结
-    * */
+    // 账号状态：-1-审核不通过，0-待审核，1-正常，2-冻结
     private int state = 1;
 
     public User() {

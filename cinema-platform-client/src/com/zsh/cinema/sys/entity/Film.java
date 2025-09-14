@@ -3,30 +3,25 @@ package com.zsh.cinema.sys.entity;
 import java.io.Serializable;
 
 /*
-* 影片
-* 选择对象流来实现信息传输，传输的对象必须实现序列化接口
-* */
+ * 影片类
+ * 选择对象流来实现信息传输，传输的对象必须实现序列化接口
+ */
 public class Film implements Serializable {
-    /*
-    * 编号
-    * */
+    // 影片编号
     private String id;
-    /*
-    * 名称
-    * */
+    // 影片名称
     private String name;
-    /*
-    * 制片人
-    * */
+    // 影片制片人
     private String producer;
-    /*
-    * 描述
-    * */
-    private String description;;
+    // 影片描述
+    private String description;
+    ;
 
+    // 空参构造
     public Film() {
     }
 
+    // 全参构造
     public Film(String id, String name, String producer, String description) {
         this.id = id;
         this.name = name;
@@ -36,6 +31,7 @@ public class Film implements Serializable {
 
     /**
      * 获取
+     *
      * @return id
      */
     public String getId() {
@@ -44,6 +40,7 @@ public class Film implements Serializable {
 
     /**
      * 设置
+     *
      * @param id
      */
     public void setId(String id) {
@@ -52,6 +49,7 @@ public class Film implements Serializable {
 
     /**
      * 获取
+     *
      * @return name
      */
     public String getName() {
@@ -60,6 +58,7 @@ public class Film implements Serializable {
 
     /**
      * 设置
+     *
      * @param name
      */
     public void setName(String name) {
@@ -68,6 +67,7 @@ public class Film implements Serializable {
 
     /**
      * 获取
+     *
      * @return producer
      */
     public String getProducer() {
@@ -76,6 +76,7 @@ public class Film implements Serializable {
 
     /**
      * 设置
+     *
      * @param producer
      */
     public void setProducer(String producer) {
@@ -84,6 +85,7 @@ public class Film implements Serializable {
 
     /**
      * 获取
+     *
      * @return description
      */
     public String getDescription() {
@@ -92,12 +94,14 @@ public class Film implements Serializable {
 
     /**
      * 设置
+     *
      * @param description
      */
     public void setDescription(String description) {
         this.description = description;
     }
 
+    // toString方法
     public String toString() {
         return id + "\t" + name + "\t" + producer + "\t" + description;
     }

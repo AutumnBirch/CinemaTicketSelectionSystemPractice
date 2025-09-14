@@ -1,6 +1,7 @@
 package com.zsh.cinema.sys.action;
 
 import com.zsh.cinema.sys.entity.Film;
+import com.zsh.cinema.sys.entity.FilmHall;
 import com.zsh.cinema.sys.entity.UnfrozenApply;
 import com.zsh.cinema.sys.entity.User;
 import com.zsh.cinema.sys.message.Message;
@@ -8,8 +9,6 @@ import com.zsh.cinema.sys.util.IdGenerator;
 import com.zsh.cinema.sys.util.InputUtil;
 import com.zsh.cinema.sys.util.SocketUtil;
 
-import java.io.IOException;
-import java.net.Socket;
 import java.util.List;
 import java.util.Map;
 
@@ -37,23 +36,7 @@ public class UserAction {
         }else {
             System.out.println("注册失败，请稍后重试...");
         }
-
-        /*try {
-            Integer result = SocketUtil.sendMessage(msg);
-            if (result != null && result == 1) {
-                System.out.println("注册成功！");
-            }else if (result != null && result == -1){
-                System.out.println("账号已被注册！");
-            }else {
-                System.out.println("注册失败，请稍后重试...");
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }*/
     }
-
 
     /*
     * 登录
@@ -145,7 +128,6 @@ public class UserAction {
             System.out.println("影片编号\t\t\t影片名称\t制片人\t影片简介");
             films.forEach(System.out::println);
         }
-
     }
     /*
     * 增加影片
@@ -190,40 +172,79 @@ public class UserAction {
     * 删除影片
     * */
     public static void deleteFilm(){
-        String id = InputUtil.getInputText("请输入影片编号：");
-        Message<String> msg = new Message<>("deleteFilm",id);
+        String id = InputUtil.getInputText("请输入影厅编号：");
+        Message<String> msg = new Message<>("deleteFilmHall",id);
         Integer result = SocketUtil.sendMessage(msg);
         if (result == null || result == 0) {
             System.out.println("删除失败QWQ......请稍后再试吧！");
         }else if (result == 1){ // 修改成功
             System.out.println("删除成功！");
         }else {
-            System.out.println("未找到与\""+id+"\"相关的影片信息QWQ......");
+            System.out.println("未找到与\""+id+"\"相关的影厅信息QWQ......");
         }
     }
     /*
     * 查看影厅
     * */
     public static void getFilmHallList(){
-
+        Message<String> msg = new Message<>("getFilmHallList",null);
+        List<FilmHall> halls = SocketUtil.sendMessage(msg);
+        if (halls == null || halls.isEmpty()) {
+            System.out.println("暂无影厅信息QWQ......");
+        }else {
+            System.out.println("影厅编号\t\t\t影厅名称\t座位数");
+            halls.forEach(System.out::println);
+        }
     }
     /*
     * 增加影厅
     * */
     public static void addFilmHall(){
-
+        String name = InputUtil.getInputText("请输入影厅名称：");
+        int totalRow = InputUtil.getInputInteger("请输入影厅总排数：",5,20);
+        int totalCol = InputUtil.getInputInteger("请输入影厅总列数：",10,15);
+        FilmHall hall = new FilmHall(IdGenerator.generatorId(10),name,totalRow,totalCol);
+        Message<FilmHall> msg = new Message<>("addFilmHall",hall);
+        Integer result = SocketUtil.sendMessage(msg);
+        if (result == null || result == 0) {
+            System.out.println("添加失败，请稍后重试QWQ......");
+        }else {
+            System.out.println("添加成功！");
+        }
     }
     /*
     * 修改影厅
     * */
     public static void updateFilmHall(){
-
+        String id = InputUtil.getInputText("请输入影厅编号：");
+        String name = InputUtil.getInputText("请输入影厅名称：");
+        int totalRow = InputUtil.getInputInteger("请输入影厅总排数：",5,20);
+        int totalCol = InputUtil.getInputInteger("请输入影厅总列数：",10,15);
+        FilmHall hall = new FilmHall(id,name,totalRow,totalCol);
+        Message<FilmHall> msg = new Message<>("updateFilmHall",hall);
+        Integer result = SocketUtil.sendMessage(msg);
+        if (result == null || result == 0) {
+            System.out.println("修改失败QWQ......请稍后再试吧！");
+        }else if (result == 1){ // 修改成功
+            System.out.println("修改成功！");
+        }else {
+            System.out.println("未找到与\""+id+"\"相关的影厅信息QWQ......");
+        }
     }
     /*
     * 删除影厅
     * */
     public static void deleteFilmHall(){
-
+        String id = InputUtil.getInputText("请输入影厅编号：");
+        Message<String> msg = new Message<>("deleteFilmHall",id);
+        Integer result = SocketUtil.sendMessage(msg);
+        if (result == null || result == 0) {
+            System.out.println("删除失败QWQ......请稍后再试吧！");
+        }else if (result == 1){ // 修改成功
+            System.out.println("删除成功！");
+        }else {
+            System.out.println("未找到与\""+id+"\"相关的影厅信息QWQ......");
+        }
     }
     /*
     * 查看播放计划

@@ -2,17 +2,15 @@ package com.zsh.cinema.sys.task;
 
 
 import com.zsh.cinema.sys.entity.Film;
+import com.zsh.cinema.sys.entity.FilmHall;
 import com.zsh.cinema.sys.entity.UnfrozenApply;
 import com.zsh.cinema.sys.entity.User;
 import com.zsh.cinema.sys.message.Message;
 import com.zsh.cinema.sys.util.FileUtil;
 import com.zsh.cinema.sys.util.SocketUtil;
 
-import java.net.IDN;
 import java.net.Socket;
 import java.util.*;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 /*
 * 消息处理任务
@@ -65,9 +63,98 @@ public class MessageProcessTask implements Runnable {
                 case "getFilmList":
                     processGetFilmList(msg);
                     break;
+                // 增加影厅
+                case "addFilmHall":
+                    processAddFilmHall(msg);
+                    break;
+                // 删除影厅
+                case "deleteFilmHall":
+                    processDeleteFilmHall(msg);
+                    break;
+                // 修改影厅
+                case "updateFilmHall":
+                    processUpdateFilmHall(msg);
+                    break;
+                // 查看影厅
+                case "getFilmHallList":
+                    processGetFilmHallList();
+                    break;
             }
         }
     }
+    /**
+     * 功能：处理查看影厅请求
+     */
+    private void processGetFilmHallList() {
+        List<FilmHall> halls = FileUtil.readData(FileUtil.FILM_HALL_FILE);
+        SocketUtil.sendBack(client,halls);
+
+    }
+    /**
+     * 功能：处理修改影厅请求
+     * @param msg
+     */
+    private void processUpdateFilmHall(Message msg) {
+        FilmHall updateFilmHall = (FilmHall) msg.getData();
+        List<FilmHall> halls = FileUtil.readData(FileUtil.FILM_HALL_FILE);
+
+        int index = -1;
+        for (int i = 0; i < halls.size(); i++) {
+            FilmHall hall = halls.get(i);
+            if (updateFilmHall.getId().equals(hall.getId())) {
+                index = i;
+                break;
+            }
+        }
+        if (index == -1) { // 说明修改的影厅信息不存在
+            SocketUtil.sendBack(client,-1);
+        }else {
+            halls.set(index,updateFilmHall);
+            boolean success = FileUtil.saveData(halls,FileUtil.FILM_HALL_FILE);
+            SocketUtil.sendBack(client,success ? 1 : 0);
+        }
+    }
+    /**
+     * 功能：处理删除影厅请求
+     * @param msg
+     */
+    private void processDeleteFilmHall(Message msg) {
+        String id = (String) msg.getData();
+        List<FilmHall> halls = FileUtil.readData(FileUtil.FILM_HALL_FILE);
+
+        int index = -1;
+        for (int i = 0; i < halls.size(); i++) {
+            FilmHall hall = halls.get(i);
+            if (id.equals(hall.getId())) {
+                index = i;
+                break;
+            }
+        }
+        if (index == -1) { // 说明删除的影厅信息不存在
+            SocketUtil.sendBack(client,-1);
+        }else {
+            halls.remove(index);
+            boolean success = FileUtil.saveData(halls,FileUtil.FILM_HALL_FILE);
+            SocketUtil.sendBack(client,success ? 1 : 0);
+        }
+    }
+
+    /**
+     * 功能：处理添加影厅请求
+     * @param msg
+     */
+    private void processAddFilmHall(Message msg) {
+        // 从客户端获取管理员添加的影厅影厅信息
+        FilmHall hall = (FilmHall) msg.getData();
+        // 读取存储在data文件夹里的影厅信息
+        List<FilmHall> filmHalls = FileUtil.readData(FileUtil.FILM_HALL_FILE);
+        // 将影片添加到影厅列表
+        filmHalls.add(hall);
+        // 保存修改后的影厅列表
+        boolean success = FileUtil.saveData(filmHalls,FileUtil.FILM_HALL_FILE);
+        SocketUtil.sendBack(client,success ? 1 : 0 );
+    }
+
     /*
      * 功能：处理查看影片列表请求
      * 参数：
@@ -75,18 +162,15 @@ public class MessageProcessTask implements Runnable {
      * */
     private void processGetFilmList(Message msg) {
         String name = (String) msg.getData();
-
         List<Film> films = FileUtil.readData(FileUtil.FILM_FILE);
-
         if (name == null || "".equals(name)) {
             // 如果所查找的影片名称不存在或为空，返回data文件夹内的影片列表
             SocketUtil.sendBack(client,films);
         }else {
-            // 最后面的toList()可能出bug，啊，只是可能啊，也不一定
+            // 最后面的toList()可能出bug，只是可能啊，也不一定
             List<Film> result = films.stream().filter(film -> film.getName().contains(name) || name.contains(film.getName())).toList();
             SocketUtil.sendBack(client,result);
         }
-
     }
 
     /*
@@ -139,7 +223,6 @@ public class MessageProcessTask implements Runnable {
             boolean success = FileUtil.saveData(films,FileUtil.FILM_FILE);
             SocketUtil.sendBack(client,success ? 1 : 0);
         }
-
     }
 
     /*

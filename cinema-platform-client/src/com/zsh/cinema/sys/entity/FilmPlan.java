@@ -2,31 +2,20 @@ package com.zsh.cinema.sys.entity;
 
 import java.util.Date;
 
-/*
-* 影片播放计划
-* */
+/**
+* 影片播放计划类
+*/
 public class FilmPlan {
-    /*
-    * 编号
-    * */
+    // 影片编号
     private String id;
-    /*
-    * 影片
-    * */
+    // 影片
     private Film film;
-    /*
-    * 影厅
-    * */
+    // 影厅
     private FilmHall filmHall;
-    /*
-    * 开始时间
-    * */
+    // 开始时间
     private Date begin;
-    /*
-    * 结束时间
-    * */
+    // 结束时间
     private Date end;
-
 
     public FilmPlan() {
     }
