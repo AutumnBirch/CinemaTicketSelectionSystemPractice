@@ -13,6 +13,8 @@ public class Order implements Serializable {
      * 编号
      * */
     private String id;
+    // 播放计划
+    private FilmPlan plan;
     /*
      * 影片名
      * */

@@ -30,8 +30,6 @@ public class FilmHall implements Serializable {
                 this.seats[i][j] = new Seat(i,j);
             }
         }
-        this.seats[0][1].setOwner("zhangsan");
-        this.seats[6][5].setOwner("lisi");
     }
     // 全参构造
     public FilmHall(String id, String name, int totalRow, int totalCol, Seat[][] seats) {

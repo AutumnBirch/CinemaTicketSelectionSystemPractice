@@ -40,7 +40,7 @@ public class CinemaClient {
                     int process = (int)result.get("process");
                     if (process == 1) { // 登录成功
                         // 记录当前用户
-                        currentUser = (User) result.get("manager");
+                        currentUser = (User) result.get("user");
                         Menu[] mainMenu = currentUser.isManager() ? MenuManager.MANAGER_MENUS : MenuManager.USER_MENUS;
                         showInterface(mainMenu);
                     } else {

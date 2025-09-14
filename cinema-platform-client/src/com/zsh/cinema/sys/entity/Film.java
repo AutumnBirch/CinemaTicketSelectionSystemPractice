@@ -14,12 +14,9 @@ public class Film implements Serializable {
     // 影片制片人
     private String producer;
     // 影片描述
-    private String description;
-
+    private String description;;
     // 空参构造
-    public Film() {
-    }
-
+    public Film() {}
     // 全参构造
     public Film(String id, String name, String producer, String description) {
         this.id = id;
@@ -28,11 +25,8 @@ public class Film implements Serializable {
         this.description = description;
     }
 
-    public static final
-
     /**
      * 获取
-     *
      * @return id
      */
     public String getId() {
@@ -41,7 +35,6 @@ public class Film implements Serializable {
 
     /**
      * 设置
-     *
      * @param id
      */
     public void setId(String id) {
@@ -50,7 +43,6 @@ public class Film implements Serializable {
 
     /**
      * 获取
-     *
      * @return name
      */
     public String getName() {
@@ -59,7 +51,6 @@ public class Film implements Serializable {
 
     /**
      * 设置
-     *
      * @param name
      */
     public void setName(String name) {
@@ -68,7 +59,6 @@ public class Film implements Serializable {
 
     /**
      * 获取
-     *
      * @return producer
      */
     public String getProducer() {
@@ -77,7 +67,6 @@ public class Film implements Serializable {
 
     /**
      * 设置
-     *
      * @param producer
      */
     public void setProducer(String producer) {
@@ -86,7 +75,6 @@ public class Film implements Serializable {
 
     /**
      * 获取
-     *
      * @return description
      */
     public String getDescription() {
@@ -95,13 +83,11 @@ public class Film implements Serializable {
 
     /**
      * 设置
-     *
      * @param description
      */
     public void setDescription(String description) {
         this.description = description;
     }
-
     // toString方法
     public String toString() {
         return id + "\t" + name + "\t" + producer + "\t" + description;
