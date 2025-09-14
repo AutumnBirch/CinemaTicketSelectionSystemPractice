@@ -114,7 +114,7 @@ public class MessageProcessTask implements Runnable {
                     break;
                 // 查看用户订单（管理员）
                 case "getOrderList":
-                    processGetOrderList();
+                    processGetOrderList(msg);
                     break;
                 // 查看用户订单（用户）
                 case "getUserOrderList":
@@ -137,6 +137,99 @@ public class MessageProcessTask implements Runnable {
                     processOrderSeatOnline(msg);
                     break;
             }
+        }
+    }
+
+    /**
+     * 功能：处理审核订单请求
+     * @param msg
+     */
+    private void processAuditOrder(Message msg) {
+        String orderId = (String) msg.getData();
+        List<Order> orders = FileUtil.readData(FileUtil.ORDER_FILE);
+        int index = -1;
+        for (int i = 0; i < orders.size(); i++) {
+            // 把每一个order拿出来看
+            Order order = orders.get(i);
+            if (order.getId().equals(orderId)) {
+                index = i;
+                break;
+            }
+        }
+        if (index == -1) {
+            SocketUtil.sendBack(client,-1);
+        }else {
+            // 找到了，改变订单状态
+            Order order = orders.get(index);
+            // 2-已退订
+            order.setState(2);
+            // 放回文件中
+            orders.set(index,order);
+            boolean success = FileUtil.saveData(orders,FileUtil.ORDER_FILE);
+            SocketUtil.sendBack(client,success ? 1 : 0);
+        }
+    }
+
+    /**
+     * 功能：处理用户取消订单
+     * @param msg
+     */
+    private void processCancelOrder(Message msg) {
+        String orderId = (String) msg.getData();
+        List<Order> orders = FileUtil.readData(FileUtil.ORDER_FILE);
+        int index = -1;
+        for (int i = 0; i < orders.size(); i++) {
+            Order order = orders.get(i);
+            if (order.getId().equals(orderId)) {
+                index = i;
+                break;
+            }
+        }
+        if (index == -1) {
+            SocketUtil.sendBack(client,-1);
+        }else {
+            Order order = orders.get(index);
+            if (order.getState() == 1){
+                // 订单状态正常
+                order.setState(0); // 更改订单状态为取消中
+                orders.set(index,order);
+                boolean success = FileUtil.saveData(orders,FileUtil.ORDER_FILE);
+                SocketUtil.sendBack(client,success ? 1 : 0);
+            }else { // 表示订单处于取消中或已退订
+                SocketUtil.sendBack(client,-2);
+            }
+        }
+    }
+
+    /**
+     * 功能：处理更新订单请求
+     * @param msg
+     */
+    private void processUpdateOrder(Message msg) {
+
+    }
+    /**
+     * 功能：处理查看用户订单请求
+     */
+    private void processGetUserOrderList(Message msg) {
+        String username = (String) msg.getData();
+        List<Order> orders = FileUtil.readData(FileUtil.ORDER_FILE);
+        List<Order> result = orders.stream().filter(o->o.getOwner().equals(username)).toList();
+        SocketUtil.sendBack(client,result);
+    }
+
+    /**
+     * 功能：处理查看订单请求
+     */
+    private void processGetOrderList(Message msg) {
+        Object data = msg.getData();
+        List<Order> orders = FileUtil.readData(FileUtil.ORDER_FILE);
+        if (data == null) {
+            SocketUtil.sendBack(client,orders);
+        }else {
+            int state = (int) data;
+            List<Order> orderList = orders.stream().filter(o->o.getState() == state).toList();
+            SocketUtil.sendBack(client,orderList);
         }
     }
 

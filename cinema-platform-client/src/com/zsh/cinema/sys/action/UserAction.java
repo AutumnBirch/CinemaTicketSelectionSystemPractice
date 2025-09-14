@@ -91,13 +91,27 @@ public class UserAction {
     * 查看订单（管理员）
     * */
     public static void getOrderList(){
-
+        Message<String> msg = new Message<>("getOrderList",null);
+        List<Order> orders = SocketUtil.sendMessage(msg);
+        if (orders == null || orders.isEmpty()){
+            System.out.println("当前并无订单信息~");
+        }else {
+            System.out.println("订单编号\t\t\t影片名称\t开始时间\t\t\t\t结束时间\t\t\t\t座位信息\t\t所属用户\t\t订单状态");
+            orders.forEach(System.out::println);
+        }
     }
     /*
     * 查看用户订单（用户）
     * */
-    public static void getUserOrderList() {
-
+    public static void getUserOrderList(String username) {
+        Message<String> msg = new Message<>("getUserOrderList",username);
+        List<Order> orders = SocketUtil.sendMessage(msg);
+        if (orders == null || orders.isEmpty()){
+            System.out.println("当前并无订单信息~");
+        }else {
+            System.out.println("订单编号\t\t\t影片名称\t开始时间\t\t\t\t结束时间\t\t\t\t座位信息\t\t所属用户\t\t订单状态");
+            orders.forEach(System.out::println);
+        }
     }
     /*
     * 修改订单
@@ -109,12 +123,49 @@ public class UserAction {
     * 取消订单
     * */
     public static void cancelOrder(){
-
+        String orderId = InputUtil.getInputText("请输入订单编号：");
+        // 把编号发送回去
+        Message<String> msg = new Message<>("cancelOrder",orderId);
+        Integer result = SocketUtil.sendMessage(msg);
+        if (result == null || result == 0) {
+            System.out.println("订单取消失败，请稍后重试......");
+        }else if (result == 1){
+            System.out.println("订单取消中......");
+        }else if (result == -1){
+            System.out.println("未找到与\""+orderId+"\"相关的订单信息QWQ......");
+        }else {
+            System.out.println("订单正在取消中或者已退订，无需再取消......");
+        }
     }
     /*
     * 审核订单
     * */
     public static void auditOrder(){
+        Message<Integer> msg = new Message<>("getOrderList",0);
+        List<Order> orders = SocketUtil.sendMessage(msg);
+        if (orders == null || orders.isEmpty()) {
+            System.out.println("当前并无可审核订单......");
+        }else {
+            while (true) {
+                String orderId = InputUtil.getInputText("请输入订单编号：");
+                // 输入时想知道用户到底有没有输对，怎么办嘞
+                boolean exists = orders.stream().anyMatch(o->o.getId().equals(orderId));
+                if (exists) {
+                    // 输入正确
+                    Message<String> auditMsg = new Message<>("auditOrder",orderId);
+                    Integer result = SocketUtil.sendMessage(auditMsg);
+                    if (result == null || result == 0) {
+                        System.out.println("审核失败，请稍后重试......");
+                    }else {
+                        System.out.println("审核成功！");
+                    }
+                    break;
+                }else {
+                    System.out.println("输入错误，订单编号输入有误......");
+                }
+            }
+
+        }
 
     }
     /*

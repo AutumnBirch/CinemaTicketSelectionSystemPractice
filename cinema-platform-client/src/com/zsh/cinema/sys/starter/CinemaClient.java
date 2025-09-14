@@ -167,7 +167,7 @@ public class CinemaClient {
                 break;
                 // 查看用户订单（用户）
             case "getUserOrderList":
-                UserAction.getUserOrderList();
+                UserAction.getUserOrderList(currentUser.getUsername());
                 showSiblingMenus(select);
                 break;
                 // 修改订单
