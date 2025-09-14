@@ -67,7 +67,7 @@ public class MenuManager {
         menu4.addChild(new Menu(1,"查看用户","getUserList",menu4));
         menu4.addChild(new Menu(2,"冻结用户","frozenUser",menu4));
         menu4.addChild(new Menu(3,"解冻用户","unfrozenUser",menu4));
-        menu4.addChild(new Menu(4,"查看解冻申请","getUnfrozenUserApply",menu4));
+        menu4.addChild(new Menu(4,"查看解冻申请","getUnfrozenApplyList",menu4));
         menu4.addChild(new Menu(5,"返回主菜单","goBackMain",menu4));
 
         Menu menu5 = new Menu(5, "订单管理", "showChildren");

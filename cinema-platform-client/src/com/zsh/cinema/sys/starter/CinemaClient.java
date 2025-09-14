@@ -138,7 +138,26 @@ public class CinemaClient {
                 UserAction.getFilmPlanList();
                 showSiblingMenus(select);
                 break;
-                // 退出
+                // 获取用户列表
+            case "getUserList":
+                UserAction.getUserList();
+                showSiblingMenus(select);
+                break;
+                // 冻结用户
+            case "frozenUser":
+                UserAction.frozenUser();
+                showSiblingMenus(select);
+                break;
+                // 解冻用户
+            case "unfrozenUser":
+                UserAction.unfrozenUser();
+                showSiblingMenus(select);
+                break;
+                // 查看用户解冻申请
+            case "getUnfrozenApplyList":
+                UserAction.getUnfrozenApplyList();
+                showSiblingMenus(select);
+                break;
             case "quit":
                 UserAction.quit();
                 break;
@@ -154,7 +173,7 @@ public class CinemaClient {
     }
     /*
     * 功能：展示与所选菜单同级的子菜单列表
-    *   通过参数select的父菜单，再通过父菜单，获取它的子菜单，即与select同级的菜单
+    *   通过参数获取select的父菜单，再通过父菜单，获取它的子菜单，即与select同级的菜单
     * 参数：select
     * 返回值：void
     * */
@@ -168,6 +187,7 @@ public class CinemaClient {
 
 
 
+    // 下面的代码已经抽象为上方的 showInterface() 方法，留着方便回顾思路
 
     /*private static void showLoginMenu(){
         MenuManager.showMenu(MenuManager.LOGIN_MENUS);

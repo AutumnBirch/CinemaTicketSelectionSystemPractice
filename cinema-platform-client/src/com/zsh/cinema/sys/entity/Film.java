@@ -15,7 +15,6 @@ public class Film implements Serializable {
     private String producer;
     // 影片描述
     private String description;
-    ;
 
     // 空参构造
     public Film() {
@@ -28,6 +27,8 @@ public class Film implements Serializable {
         this.producer = producer;
         this.description = description;
     }
+
+    public static final
 
     /**
      * 获取

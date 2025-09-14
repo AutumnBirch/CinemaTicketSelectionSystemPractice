@@ -9,6 +9,7 @@ import com.zsh.cinema.sys.util.SocketUtil;
 
 import java.net.Socket;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /*
@@ -94,9 +95,130 @@ public class MessageProcessTask implements Runnable {
                 case "getFilmPlanList":
                     processGetFilmPlanList(msg);
                     break;
+                // 获取用户列表
+                case "getUserList":
+                    processGetUserList();
+                    break;
+                // 冻结用户
+                case "frozenUser":
+                    processFrozenUser(msg);
+                    break;
+                // 解冻用户
+                case "unfrozenUser":
+                    processUnfrozenUser(msg);
+                    break;
+                // 查看用户解冻申请
+                case "getUnfrozenApplyList":
+                    processGetUnfrozenList();
+                    break;
             }
         }
     }
+
+    /**
+     * 功能：查看解冻申请
+     */
+    private void processGetUnfrozenList() {
+        List<UnfrozenApply> applies = FileUtil.readData(FileUtil.UNFROZEN_APPLY_FILE);
+        SocketUtil.sendBack(client,applies);
+    }
+
+    /**
+     * 处理用户解冻申请
+     * @param msg
+     */
+    private void processUnfrozenUser(Message msg) {
+        Map<String,Object> data = (Map<String, Object>) msg.getData();
+        String id = (String) data.get("id");
+        int number = (Integer) data.get("number");
+        List<UnfrozenApply> applies = FileUtil.readData(FileUtil.UNFROZEN_APPLY_FILE);
+        int index = -1;
+        for (int i = 0; i < applies.size(); i++) {
+            UnfrozenApply apply = applies.get(i);
+            if (apply.getId().equals(id)){
+                index = i;
+                break;
+            }
+        }
+        if (index == -1) {
+            // -2 解冻申请编号不存在
+            SocketUtil.sendBack(client,-2);
+        }else {
+            UnfrozenApply apply = applies.get(index);
+            int state = apply.getState();
+            if (state == 0){ // 待处理
+                apply.setState(number);
+                // 拿出已处理的账号
+                List<User> users = FileUtil.readData(FileUtil.USER_FILE);
+                int userIndex = -1;
+                for (int i = 0; i < users.size(); i++) {
+                    User user = users.get(i);
+                    // 如果该用户账号存在
+                    if (user.getUsername().equals(apply.getUsername())) {
+                        userIndex = i;
+                        break;
+                    }
+                    // 如果不存在，操作比较麻烦，先不写（
+                }
+                if (number == 1) {
+                    User user = users.get(userIndex);
+                    user.setState(1);
+                    users.set(userIndex , user);
+                    FileUtil.saveData(users,FileUtil.USER_FILE);
+                }
+                applies.set(index,apply);
+                boolean success = FileUtil.saveData(applies,FileUtil.UNFROZEN_APPLY_FILE);
+                SocketUtil.sendBack(client,success ? 1 : 0);
+            }else { // -1 已经处理过
+                SocketUtil.sendBack(client,-1);
+            }
+        }
+        Optional<UnfrozenApply> opt = applies.stream().filter(unfrozenApply -> unfrozenApply.getId().equals(id)).findFirst();
+        if (opt.isPresent()) {
+            UnfrozenApply apply = opt.get();
+
+        }else {
+        }
+    }
+
+    /**
+     * 功能：冻结用户
+     * @param msg
+     */
+    private void processFrozenUser(Message msg) {
+        String username = (String) msg.getData();
+        List<User> users = FileUtil.readData(FileUtil.USER_FILE);
+        int index = -1;
+        for (int i = 0; i < users.size(); i++) {
+            User user = users.get(i);
+            if (username.equals(user.getUsername())) {
+                index = i;
+                break;
+            }
+        }
+        if (index == -1) { // 账号不存在
+            SocketUtil.sendBack(client,-1);
+        }else {
+            User user = users.get(index);
+            if (user.getState() == 1) {
+                user.setState(0); // 设置账号为冻结状态
+                users.set(index,user); // 把改为冻结账号的账号放回存储文件中
+                boolean success = FileUtil.saveData(users,FileUtil.USER_FILE);
+                SocketUtil.sendBack(client,success ? 1:0);
+            }else { // 被冻结
+                SocketUtil.sendBack(client,-2);
+            }
+        }
+    }
+
+    /**
+     * 功能：查询用户列表
+     */
+    private void processGetUserList() {
+        List<User> users = FileUtil.readData(FileUtil.USER_FILE);
+        SocketUtil.sendBack(client,users);
+    }
+
     /**
      * 功能：处理查看播放计划请求
      * @param msg
@@ -134,7 +256,7 @@ public class MessageProcessTask implements Runnable {
         }else {
             //先将原来的播放计划移除，然后再检测时间是否冲突
             FilmPlan remove = plans.remove(index);
-            boolean conflict = plans.stream().anyMatch(fp->DateUtil.isConflictPlan(plan,fp));
+            boolean conflict = plans.stream().anyMatch(filmPlan -> DateUtil.isConflictPlan(plan,filmPlan));
             if (conflict) {
                 SocketUtil.sendBack(client,-1);
             }else {

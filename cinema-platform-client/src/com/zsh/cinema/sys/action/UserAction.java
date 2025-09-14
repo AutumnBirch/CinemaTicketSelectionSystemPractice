@@ -6,10 +6,7 @@ import com.zsh.cinema.sys.util.IdGenerator;
 import com.zsh.cinema.sys.util.InputUtil;
 import com.zsh.cinema.sys.util.SocketUtil;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 /*
 * 用户行为
@@ -360,25 +357,75 @@ public class UserAction {
     * 查看用户
     * */
     public static void getUserList(){
+        Message<String> msg = new Message<>("getUserList",null);
+        List<User> users = SocketUtil.sendMessage(msg);
+        if (users == null || users.isEmpty()){
+            System.out.println("当前并无可展示的用户信息QWQ......");
+        }else {
+            System.out.println("账号\t\t角色\t状态");
+            users.forEach(System.out::println);
+        }
 
     }
     /*
     * 冻结用户
     * */
     public static void frozenUser(){
-
+        String username = InputUtil.getInputText("请输入冻结账号：");
+        Message<String> mag = new Message<>("frozenUser",username);
+        Integer result = SocketUtil.sendMessage(mag);
+        if(result == null || result == 0){
+            System.out.println("冻结失败，请稍后重试");
+        } else if(result == 1){
+            System.out.println("冻结成功");
+        } else if (result == -1){
+            System.out.println("未找到与\"" + username + "\"相关的用户信息");
+        }else {
+            System.out.println("账号\""+username+"\"已被冻结，无需再冻结~");
+        }
     }
     /*
     * 解冻用户
     * */
     public static void unfrozenUser(){
+        Message<String> msg = new Message<>("getUnfrozenApplyList",null);
+        List<UnfrozenApply> applies = SocketUtil.sendMessage(msg);
+        if (applies == null || applies.isEmpty()){
+            System.out.println("当前并无解冻申请信息QWQ......");
+        }else {
+            System.out.println("编号\t冻结账号\t\t原因\t状态");
+            applies.forEach(System.out::println);
+            String id = InputUtil.getInputText("请输入解冻申请编号：");
+            int number = InputUtil.getInputInteger("请输入解冻状态：",1,2);
+            Map<String,Object> map = new HashMap<>();
+            map.put("id",id);
+            map.put("number",number);
+            Message<Map<String,Object>> message = new Message<>("unfrozenUser",map);
+            Integer result = SocketUtil.sendMessage(message);
+            if (result == null || result == 0) {
+                System.out.println("解冻失败QWQ，请稍后尝试......");
+            } else if (result == 1) {
+                System.out.println("解冻成功！");
+            }else if (result == -1){
+                System.out.println("该解冻申请已经处理，无需再次处理......");
+            }else {
+                System.out.println("未找到与\""+id+"\"相关的解冻申请......");
 
+            }
+        }
     }
     /*
     * 查看解冻申请
     * */
     public static void getUnfrozenApplyList(){
-
+        Message<String> msg = new Message<>("getUnfrozenApplyList",null);
+        List<UnfrozenApply> applies = SocketUtil.sendMessage(msg);
+        if (applies == null || applies.isEmpty()){
+            System.out.println("当前并无解冻申请信息QWQ......");
+        }else {
+            System.out.println("编号\t冻结账号\t\t原因\t状态");
+            applies.forEach(System.out::println);
+        }
     }
 }
 
