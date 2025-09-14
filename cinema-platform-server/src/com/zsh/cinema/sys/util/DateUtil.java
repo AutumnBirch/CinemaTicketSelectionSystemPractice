@@ -46,7 +46,15 @@ public class DateUtil {
         //2020-10-10 10:20:00 ~ 2020-10-10 11:50:00
         //2020-10-10 11:00:00 ~ 2020-10-10 13:00:00
         //首先保证是同一个影厅
-        if (plan1.getFilmHall().getId().equals(plan2.getFilmHall().getId())){
+/*        if (plan1.getFilmHall().getId().equals(plan2.getFilmHall().getId())){
+            boolean case1 = begin2.before(begin1) && end2.after(begin1) && end2.before(end1);
+            boolean case2 = begin2.after(begin1) && begin2.before(end2) && end2.before(end1);
+            boolean case3 = begin2.after(begin1) && begin2.before(end2) && end2.after(end1);
+            return case1 || case2 || case3;
+        }
+        return false;*/
+        // 运行到这里，一进入if判断就报错，搞不清楚到底怎么回事，先push一次然后继续往下写吧，至少知道问题在哪里了......
+        if(plan1.getFilmHall().getId().equals(plan2.getFilmHall().getId())){
             boolean case1 = begin2.before(begin1) && end2.after(begin1) && end2.before(end1);
             boolean case2 = begin2.after(begin1) && begin2.before(end2) && end2.before(end1);
             boolean case3 = begin2.after(begin1) && begin2.before(end2) && end2.after(end1);

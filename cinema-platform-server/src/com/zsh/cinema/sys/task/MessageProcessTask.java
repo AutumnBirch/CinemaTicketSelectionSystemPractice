@@ -1,16 +1,15 @@
 package com.zsh.cinema.sys.task;
 
 
-import com.zsh.cinema.sys.entity.Film;
-import com.zsh.cinema.sys.entity.FilmHall;
-import com.zsh.cinema.sys.entity.UnfrozenApply;
-import com.zsh.cinema.sys.entity.User;
+import com.zsh.cinema.sys.entity.*;
 import com.zsh.cinema.sys.message.Message;
+import com.zsh.cinema.sys.util.DateUtil;
 import com.zsh.cinema.sys.util.FileUtil;
 import com.zsh.cinema.sys.util.SocketUtil;
 
 import java.net.Socket;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /*
 * 消息处理任务
@@ -79,16 +78,121 @@ public class MessageProcessTask implements Runnable {
                 case "getFilmHallList":
                     processGetFilmHallList();
                     break;
+                // 增加播放计划
+                case "addFilmPlan":
+                    processAddFilmPlan(msg);
+                    break;
+                // 删除播放计划
+                case "deleteFilmPlan":
+                    processDeleteFilmPlan(msg);
+                    break;
+                // 修改播放计划
+                case "updateFilmPlan":
+                    processUpdateFilmPlan(msg);
+                    break;
+                // 查看播放计划
+                case "getFilmPlanList":
+                    processGetFilmPlanList(msg);
+                    break;
             }
         }
     }
+    /**
+     * 功能：处理查看播放计划请求
+     * @param msg
+     */
+    private void processGetFilmPlanList(Message msg) {
+        String filmName = (String) msg.getData();
+        List<FilmPlan> plans = FileUtil.readData(FileUtil.FILM_PLAN_FILE);
+        if(filmName == null || "".equals(filmName)){
+            SocketUtil.sendBack(client, plans);
+        } else {
+            List<FilmPlan> result = plans.stream().filter(fp->{
+                Film film = fp.getFilm();
+                return film.getName().contains(filmName) || filmName.contains(film.getName());
+            }).collect(Collectors.toList());
+            SocketUtil.sendBack(client, result);
+        }
+    }
+    /**
+     * 功能：处理更新播放计划请求
+     * @param msg
+     */
+    private void processUpdateFilmPlan(Message msg) {
+        FilmPlan plan = (FilmPlan) msg.getData();
+        List<FilmPlan> plans = FileUtil.readData(FileUtil.FILM_PLAN_FILE);
+        int index = -1;
+        for (int i = 0; i < plans.size(); i++) {
+            FilmPlan fp = plans.get(i);
+            if (plan.getId().equals(fp.getId())) {
+                index = i;
+                break;
+            }
+        }
+        if (index == -1) { // 更新的播放计划不存在
+            SocketUtil.sendBack(client,-2);
+        }else {
+            //先将原来的播放计划移除，然后再检测时间是否冲突
+            FilmPlan remove = plans.remove(index);
+            boolean conflict = plans.stream().anyMatch(fp->DateUtil.isConflictPlan(plan,fp));
+            if (conflict) {
+                SocketUtil.sendBack(client,-1);
+            }else {
+                plan.setFilm(remove.getFilm());
+                plan.setFilmHall(remove.getFilmHall());
+                plans.add(plan);
+                boolean success = FileUtil.saveData(plans,FileUtil.FILM_PLAN_FILE);
+                SocketUtil.sendBack(client,success ? 1 : 0);
+            }
+        }
+    }
+    /**
+     * 功能：处理删除播放计划请求
+     * @param msg
+     */
+    private void processDeleteFilmPlan(Message msg) {
+        String planId = (String) msg.getData();
+        List<FilmPlan> plans = FileUtil.readData(FileUtil.FILM_PLAN_FILE);
+        int index = -1;
+        for(int i=0; i<plans.size(); i++){
+            FilmPlan fp = plans.get(i);
+            if(planId.equals(fp.getId())){
+                index = i;
+                break;
+            }
+        }
+        if(index == -1){
+            SocketUtil.sendBack(client, -1);
+        } else {
+            plans.remove(index);
+            boolean success = FileUtil.saveData(plans, FileUtil.FILM_PLAN_FILE);
+            SocketUtil.sendBack(client, success ? 1 : 0);
+        }
+    }
+
+    /**
+     * 功能：处理添加播放计划请求
+     * @param msg
+     */
+    private void processAddFilmPlan(Message msg) {
+        FilmPlan plan = (FilmPlan) msg.getData();
+        List<FilmPlan> plans = FileUtil.readData(FileUtil.FILM_PLAN_FILE);
+        boolean conflict = plans.stream().anyMatch(fp-> DateUtil.isConflictPlan(plan,fp));
+        if (conflict) { // 播放时间冲突
+            SocketUtil.sendBack(client,-1);
+        }else {
+            plans.add(plan);
+            boolean success = FileUtil.saveData(plans,FileUtil.FILM_PLAN_FILE);
+            SocketUtil.sendBack(client,success ? 1 : 0);
+        }
+    }
+
     /**
      * 功能：处理查看影厅请求
      */
     private void processGetFilmHallList() {
         List<FilmHall> halls = FileUtil.readData(FileUtil.FILM_HALL_FILE);
         SocketUtil.sendBack(client,halls);
-
     }
     /**
      * 功能：处理修改影厅请求

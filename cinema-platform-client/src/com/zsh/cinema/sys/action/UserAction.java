@@ -1,16 +1,15 @@
 package com.zsh.cinema.sys.action;
 
-import com.zsh.cinema.sys.entity.Film;
-import com.zsh.cinema.sys.entity.FilmHall;
-import com.zsh.cinema.sys.entity.UnfrozenApply;
-import com.zsh.cinema.sys.entity.User;
+import com.zsh.cinema.sys.entity.*;
 import com.zsh.cinema.sys.message.Message;
 import com.zsh.cinema.sys.util.IdGenerator;
 import com.zsh.cinema.sys.util.InputUtil;
 import com.zsh.cinema.sys.util.SocketUtil;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /*
 * 用户行为
@@ -250,25 +249,112 @@ public class UserAction {
     * 查看播放计划
     * */
     public static void getFilmPlanList(){
-
+        String name = InputUtil.getInputText("请输入影片名称：");
+        Message<String> msg = new Message<>("getFilmPlanList",name);
+        List<FilmPlan> plans = SocketUtil.sendMessage(msg);
+        if (plans == null || plans.isEmpty()) {
+            System.out.println("未找到与\""+name+"\"相关的播放计划QWQ......");
+        }else {
+            System.out.println("播放计划\t\t\t影片名称\t影片描述\t影厅名称\t开始时间\t\t\t\t结束时间\t\t\t\t余票");
+            plans.forEach(System.out::println);
+        }
     }
     /*
     * 增加播放计划
     * */
     public static void addFilmPlan(){
-
+        Message<String> msg = new Message<>("getFilmList",null);
+        List<Film> films = SocketUtil.sendMessage(msg);
+        if (films ==  null || films.isEmpty()) {
+            System.out.println("当前并无可播放影片信息QWQ......");
+        }else {
+            // 先展示影片信息
+            System.out.println("影片编号\t\t\t影片名称\t制片人\t影片简介");
+            films.forEach(System.out::println);
+            // 循环接收用户输入，直至输入正确
+            while (true){
+                // 准备影片列表
+                String filmId = InputUtil.getInputText("请输入影片编号：");
+                Optional<Film> optionalFilm = films.stream().filter(film -> film.getId().equals(filmId)).findFirst();
+                if (optionalFilm.isPresent()) {
+                    // 如果影片存在，那么先进入选择影片环节，后进入选择影厅环节
+                    Film film = optionalFilm.get(); // 选择影片
+                    // 准备影厅列表
+                    Message<String> searchFilmHallMsg = new Message<>("getFilmHallList",null);
+                    List<FilmHall> halls = SocketUtil.sendMessage(searchFilmHallMsg);
+                    // 如果选择的影厅不存在，打印提示，否则进入选择影厅环节
+                    if (halls == null || halls.isEmpty()) {
+                        System.out.println("当前并无可使用的影厅QWQ......");
+                    }else {
+                        // 先展示影厅信息
+                        System.out.println("影厅编号\t\t\t影厅名称\t座位数");
+                        halls.forEach(System.out::println);
+                        // 循环接收用户输入，直至输入正确
+                       while (true) {
+                           String filmHallId = InputUtil.getInputText("请输入影厅编号：");
+                           Optional<FilmHall> optionalFilmHall = halls.stream().filter(hall -> hall.getId().equals(filmHallId)).findFirst();
+                           if (optionalFilmHall.isPresent()) {
+                               FilmHall hall = optionalFilmHall.get();
+                               Date begin = InputUtil.getInputDate("请输入开始时间：");
+                               Date end = InputUtil.getInputDate("请输入结束时间：");
+                               FilmPlan plan = new FilmPlan(IdGenerator.generatorId(10),film,hall,begin,end);
+                               // 打包好信息发送给服务端
+                               Message<FilmPlan> filmPlanMSG = new Message<>("addFilmPlan",plan);
+                               Integer result = SocketUtil.sendMessage(filmPlanMSG);
+                               if (result == null || result == 0) {
+                                   System.out.println("添加失败，请稍后重试QWQ......");
+                               }else if (result == 1){
+                                   System.out.println("添加成功！");
+                               }else {
+                                   System.out.println("播放计划冲突，添加失败，请重新制定播放计划QWQ......");
+                               }
+                               break;
+                           }else {
+                               System.out.println("影厅编号输入有误，请重新输入QWQ......");
+                           }
+                       }
+                    }
+                    break;
+                }else {
+                    System.out.println("影片编号输入有误，请重新输入QWQ......");
+                }
+            }
+        }
     }
     /*
     * 修改播放计划
     * */
     public static void updateFilmPlan(){
-
+        String filmPlanId = InputUtil.getInputText("请输入播放计划编号：");
+        Date begin = InputUtil.getInputDate("请输入开始时间：");
+        Date end = InputUtil.getInputDate("请输入结束时间：");
+        FilmPlan plan = new FilmPlan(filmPlanId,null,null,begin,end);
+        Message<FilmPlan> msg = new Message<>("updateFilmPlan",plan);
+        Integer result = SocketUtil.sendMessage(msg);
+        if (result == null || result == 0) {
+            System.out.println("更新失败，请稍后重试QWQ......");
+        }else if (result == 1){
+            System.out.println("更新成功！");
+        }else if (result == -1){
+            System.out.println("播放计划冲突，添加失败，请重新制定播放计划QWQ......");
+        }else {
+            System.out.println("未找到与\""+filmPlanId+"\"相关的播放计划QWQ......");
+        }
     }
     /*
     * 删除播放计划
     * */
     public static void deleteFilmPlan(){
-
+        String filmPlanId = InputUtil.getInputText("请输入播放计划编号：");
+        Message<String> msg = new Message<>("deleteFilmPlan", filmPlanId);
+        Integer result = SocketUtil.sendMessage(msg);
+        if(result == null || result == 0){
+            System.out.println("删除失败，请稍后重试");
+        } else if(result == 1){
+            System.out.println("删除成功");
+        } else {
+            System.out.println("未找到与\"" + filmPlanId + "\"相关的播放计划");
+        }
     }
     /*
     * 查看用户

@@ -16,6 +16,9 @@ import java.util.Scanner;
 * 影院客户端
 * */
 public class CinemaClient {
+    // 当前登录用户是否为管理员
+    private static boolean isManager;
+
     public static void main(String[] args) throws IOException, ClassNotFoundException {
         showInterface(MenuManager.LOGIN_MENUS);
     }
@@ -35,7 +38,7 @@ public class CinemaClient {
                 }else {
                     int process = (int)result.get("process");
                     if (process == 1) { // 登录成功
-                        boolean isManager = (Boolean) result.get("manager");
+                        isManager = (Boolean) result.get("manager");
                         Menu[] mainMenu = isManager ? MenuManager.MANAGER_MENUS : MenuManager.USER_MENUS;
                         showInterface(mainMenu);
                     } else {
@@ -73,7 +76,7 @@ public class CinemaClient {
                 showInterface(MenuManager.LOGIN_MENUS);
                 break;
             case "goBackMain":
-                showInterface(MenuManager.USER_MENUS);
+                showInterface(isManager ? MenuManager.MANAGER_MENUS : MenuManager.USER_MENUS);
                 break;
                 // 增加影片
             case "addFilm":
@@ -113,6 +116,26 @@ public class CinemaClient {
                 // 查看影厅
             case "getFilmHallList":
                 UserAction.getFilmHallList();
+                showSiblingMenus(select);
+                break;
+                // 增加播放计划
+            case "addFilmPlan":
+                UserAction.addFilmPlan();
+                showSiblingMenus(select);
+                break;
+                // 删除播放计划
+            case "deleteFilmPlan":
+                UserAction.deleteFilmPlan();
+                showSiblingMenus(select);
+                break;
+                // 修改播放计划
+            case "updateFilmPlan":
+                UserAction.updateFilmPlan();
+                showSiblingMenus(select);
+                break;
+                // 查看播放计划
+            case "getFilmPlanList":
+                UserAction.getFilmPlanList();
                 showSiblingMenus(select);
                 break;
                 // 退出

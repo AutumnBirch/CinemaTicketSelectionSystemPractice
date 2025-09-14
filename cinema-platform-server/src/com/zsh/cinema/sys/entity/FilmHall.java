@@ -41,7 +41,20 @@ public class FilmHall implements Serializable {
         this.totalCol = totalCol;
         this.seats = seats;
     }
-
+    /**
+     * 获取余票
+     */
+    public int getRestTicket(){
+        int totalTicket = 0;
+        for (Seat[] seatArr : seats) {
+            for (Seat seat : seatArr) {
+                if (seat.getOwner() == null) {
+                    totalTicket++;
+                }
+            }
+        }
+        return totalTicket;
+    }
     /**
      * 获取
      * @return id
