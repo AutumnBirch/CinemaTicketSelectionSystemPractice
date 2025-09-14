@@ -41,6 +41,26 @@ public class FilmHall implements Serializable {
         this.totalCol = totalCol;
         this.seats = seats;
     }
+
+    /**
+     * 给定排号和列号的座位是否已经售卖
+     * @param row
+     * @param col
+     * @return
+     */
+    public boolean hasOwner(int row,int col){
+        return seats[row][col].getOwner() != null;
+    }
+
+    /**
+     * 功能：给定排号和列号的用户设定座位
+     * @param row
+     * @param col
+     * @param username
+     */
+    public void setOwner(int row,int col,String username){
+        seats[row][col].setOwner(username);
+    }
     /**
      * 获取余票
      */
@@ -139,7 +159,7 @@ public class FilmHall implements Serializable {
                     // 由于out和err是两个不同的流，执行有先后，
                     // 故为保证座位表打印正确，
                     // 需要添加休眠代码让程序在每打印一个座位后休眠等待一段时间，
-                    // PS:这方法效率可太低了，直接改控制台的字体颜色多方便
+                    // PS:这方法效率可太低了，直接改控制台的字体颜色多方便，哈哈（
                     // System.err.print(seat);
 
                     // 直接使用ANSI 转义序列控制终端字体颜色，"\033[31m"是让字体变红，"\033[0m"是让字体回复默认颜色

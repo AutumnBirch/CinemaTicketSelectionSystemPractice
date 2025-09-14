@@ -5,6 +5,7 @@ import com.zsh.cinema.sys.entity.*;
 import com.zsh.cinema.sys.message.Message;
 import com.zsh.cinema.sys.util.DateUtil;
 import com.zsh.cinema.sys.util.FileUtil;
+import com.zsh.cinema.sys.util.IdGenerator;
 import com.zsh.cinema.sys.util.SocketUtil;
 
 import java.net.Socket;
@@ -111,8 +112,87 @@ public class MessageProcessTask implements Runnable {
                 case "getUnfrozenApplyList":
                     processGetUnfrozenList();
                     break;
+                // 查看用户订单（管理员）
+                case "getOrderList":
+                    processGetOrderList();
+                    break;
+                // 查看用户订单（用户）
+                case "getUserOrderList":
+                    processGetUserOrderList(msg);
+                    break;
+                // 修改订单
+                case "updateOrder":
+                    processUpdateOrder(msg);
+                    break;
+                // 取消订单
+                case "cancelOrder":
+                    processCancelOrder(msg);
+                    break;
+                // 审核订单
+                case "auditOrder":
+                    processAuditOrder(msg);
+                    break;
+                // 在线订座
+                case "orderSeatOnline":
+                    processOrderSeatOnline(msg);
+                    break;
             }
         }
+    }
+
+    /**
+     * 功能：处理在线订座请求
+     * @param msg
+     */
+    private void processOrderSeatOnline(Message msg) {
+        Map<String,Object> data = (Map<String, Object>) msg.getData();
+        String planId = (String) data.get("planId");
+        int row = (int) data.get("row");
+        int col = (int) data.get("col");
+        String username = (String) data.get("username");
+        List<FilmPlan> plans = FileUtil.readData(FileUtil.FILM_PLAN_FILE);
+        int index = -1;
+        for (int i = 0; i < plans.size(); i++) {
+            FilmPlan plan = plans.get(i);
+            if (plan.getId().equals(planId)) {
+                index = i;
+                break;
+            }
+        }
+        if (index == -1){
+            SocketUtil.sendBack(client,-1);
+        }else {
+            FilmPlan plan = plans.get(index);
+            FilmHall hall = plan.getFilmHall();
+            hall.setOwner(row,col,username);
+            plan.setFilmHall(hall);
+            plans.set(index,plan);
+            boolean success = FileUtil.saveData(plans,FileUtil.FILM_PLAN_FILE);
+            // 生成订单
+            Order order = new Order();
+            order.setId(IdGenerator.generatorId(10));
+            order.setFilmName(plan.getFilm().getName());
+            order.setOwner(username);
+            order.setBegin(plan.getBegin());
+            order.setEnd(plan.getEnd());
+            String seatInfo = hall.getName() + "第"+row+"排第"+col+"列";
+            order.setSeatInfo(seatInfo);
+            // 保存订单
+            // 先读取
+            List<Order> orders = FileUtil.readData(FileUtil.ORDER_FILE);
+            // 再写入
+            orders.add(order);
+            FileUtil.saveData(orders,FileUtil.ORDER_FILE);
+            SocketUtil.sendBack(client,success ? 1 : 0);
+        }
+
+
+/*
+        Optional<FilmPlan> opt = plans.stream().filter(fp->fp.getId().equals(planId)).findFirst();
+        // 其他一些情况不考虑，因为已经在客户端部分做了校验
+        if (opt.isPresent()){
+            FilmPlan plan = opt.get();
+        }*/
     }
 
     /**
@@ -555,7 +635,8 @@ public class MessageProcessTask implements Runnable {
                 // 密码匹配
                 if (loginUser.getPassword().equals(user.getPassword())) {
                     result.put("process", 1);
-                    result.put("manager", user.isManager());
+                    //
+                    result.put("user", user);
                 }else { // 密码不匹配
                     result.put("process",0);
                 }

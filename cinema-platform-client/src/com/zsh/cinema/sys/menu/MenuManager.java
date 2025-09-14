@@ -23,7 +23,7 @@ public class MenuManager {
     public static final Menu[] USER_MENUS;
     static {
         Menu menu1 = new Menu(1, "我的订单", "showChildren");
-        menu1.addChild(new Menu(1,"查看订单","getOrderList",menu1));
+        menu1.addChild(new Menu(1,"查看订单","getUserOrderList",menu1));
         menu1.addChild(new Menu(2,"修改订单","updateOrder",menu1));
         menu1.addChild(new Menu(3,"取消订单","cancelOrder",menu1));
         menu1.addChild(new Menu(4,"返回主菜单","goBackMain",menu1));

@@ -88,9 +88,15 @@ public class UserAction {
         System.exit(0);
     }
     /*
-    * 查看订单
+    * 查看订单（管理员）
     * */
     public static void getOrderList(){
+
+    }
+    /*
+    * 查看用户订单（用户）
+    * */
+    public static void getUserOrderList() {
 
     }
     /*
@@ -110,6 +116,56 @@ public class UserAction {
     * */
     public static void auditOrder(){
 
+    }
+    /*
+    * 在线订座
+    * */
+    public static void orderSeatOnline(String username){
+        Message<String> msg = new Message<>("getFilmPlanList",null);
+        List<FilmPlan> plans = SocketUtil.sendMessage(msg);
+        if (plans == null || plans.isEmpty()) {
+            System.out.println("暂无影票售卖QWQ......");
+        }else {
+            System.out.println("播放计划编号\t\t\t影片名称\t影片描述\t影厅名称\t开始时间\t\t\t\t结束时间\t\t\t\t余票");
+            plans.forEach(System.out::println);
+            String planId = InputUtil.getInputText("请输入播放计划编号：");
+            Optional<FilmPlan> opt = plans.stream().filter(fp -> fp.getId().equals(planId)).findFirst();
+            if (opt.isPresent()){
+                FilmPlan plan = opt.get();
+                FilmHall hall = plan.getFilmHall();
+                if (hall.getRestTicket() > 0) {
+                    // 展示影厅座位
+                    hall.showSeats();
+                    while (true) {
+                        int row = InputUtil.getInputInteger("请选择排号：",0,hall.getTotalRow()-1);
+                        int col = InputUtil.getInputInteger("请选择列号：",0,hall.getTotalCol()-1);
+                        // 所选座位是否有人坐
+                        if (hall.hasOwner(row,col)) {
+                            // 如果座位已经售卖
+                            System.out.println("座位：第"+row+"排第"+col+"列已售出......");
+                        }else {
+                            Map<String,Object> map = new HashMap<>();
+                            map.put("planId",planId);
+                            map.put("row",row);
+                            map.put("col",col);
+                            map.put("username",username);
+                            Message<Map<String,Object>> orderMsg = new Message<>("orderSeatOnline",map);
+                            Integer result = SocketUtil.sendMessage(orderMsg);
+                            if (result == null || result == 0) {
+                                System.out.println("座位订购失败，请稍后重试QWQ......");
+                            }else {
+                                System.out.println("座位订购成功！");
+                            }
+                            break;
+                        }
+                    }
+                }else {
+                    System.out.println("当前影片影票已售完，下次再来吧QWQ......");
+                }
+            }else {
+                System.out.println("播放计划编号输入有误，请重新输入......");
+            }
+        }
     }
     /*
     * 查看影片
@@ -427,5 +483,6 @@ public class UserAction {
             applies.forEach(System.out::println);
         }
     }
+
 }
 

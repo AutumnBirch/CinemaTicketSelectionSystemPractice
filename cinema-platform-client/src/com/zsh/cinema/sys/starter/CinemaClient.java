@@ -2,6 +2,7 @@ package com.zsh.cinema.sys.starter;
 
 import com.zsh.cinema.sys.action.UserAction;
 import com.zsh.cinema.sys.entity.FilmHall;
+import com.zsh.cinema.sys.entity.User;
 import com.zsh.cinema.sys.menu.Menu;
 import com.zsh.cinema.sys.menu.MenuManager;
 import com.zsh.cinema.sys.util.InputUtil;
@@ -17,9 +18,9 @@ import java.util.Scanner;
 * */
 public class CinemaClient {
     // 当前登录用户是否为管理员
-    private static boolean isManager;
+    private static User currentUser;
 
-    public static void main(String[] args) throws IOException, ClassNotFoundException {
+    public static void main(String[] args) {
         showInterface(MenuManager.LOGIN_MENUS);
     }
     /*
@@ -38,8 +39,9 @@ public class CinemaClient {
                 }else {
                     int process = (int)result.get("process");
                     if (process == 1) { // 登录成功
-                        isManager = (Boolean) result.get("manager");
-                        Menu[] mainMenu = isManager ? MenuManager.MANAGER_MENUS : MenuManager.USER_MENUS;
+                        // 记录当前用户
+                        currentUser = (User) result.get("manager");
+                        Menu[] mainMenu = currentUser.isManager() ? MenuManager.MANAGER_MENUS : MenuManager.USER_MENUS;
                         showInterface(mainMenu);
                     } else {
                         String msg;
@@ -76,7 +78,7 @@ public class CinemaClient {
                 showInterface(MenuManager.LOGIN_MENUS);
                 break;
             case "goBackMain":
-                showInterface(isManager ? MenuManager.MANAGER_MENUS : MenuManager.USER_MENUS);
+                showInterface(currentUser.isManager() ? MenuManager.MANAGER_MENUS : MenuManager.USER_MENUS);
                 break;
                 // 增加影片
             case "addFilm":
@@ -158,11 +160,42 @@ public class CinemaClient {
                 UserAction.getUnfrozenApplyList();
                 showSiblingMenus(select);
                 break;
+                // 查看用户订单（管理员）
+            case "getOrderList":
+                UserAction.getOrderList();
+                showSiblingMenus(select);
+                break;
+                // 查看用户订单（用户）
+            case "getUserOrderList":
+                UserAction.getUserOrderList();
+                showSiblingMenus(select);
+                break;
+                // 修改订单
+            case "updateOrder":
+                UserAction.updateOrder();
+                showSiblingMenus(select);
+                break;
+                // 取消订单
+            case "cancelOrder":
+                UserAction.cancelOrder();
+                showSiblingMenus(select);
+                break;
+                // 审核订单
+            case "auditOrder":
+                UserAction.auditOrder();
+                showSiblingMenus(select);
+                break;
+                // 在线订座
+            case "orderSeatOnline":
+                UserAction.orderSeatOnline(currentUser.getUsername());
+                showSiblingMenus(select);
+                break;
+                // 退出系统
             case "quit":
                 UserAction.quit();
                 break;
-            default: // 其他子菜单操作，需要重新展示与该子菜单同级的子菜单列表
-                showSiblingMenus(select);
+/*            default: // 其他子菜单操作，需要重新展示与该子菜单同级的子菜单列表
+                showSiblingMenus(select);*/
 
 /*                Menu parent = select.getParent();
                 List<Menu> menuList = parent.getChildren();

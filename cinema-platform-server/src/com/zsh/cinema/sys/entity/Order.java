@@ -6,36 +6,36 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 /**
-* 订单类
-*/
+ * 订单类
+ */
 public class Order implements Serializable {
     /*
-    * 编号
-    * */
+     * 编号
+     * */
     private String id;
     /*
-    * 影片名
-    * */
+     * 影片名
+     * */
     private String filmName;
     /*
-    * 开始时间
-    * */
+     * 开始时间
+     * */
     private Date begin;
     /*
-    * 结束时间
-    * */
+     * 结束时间
+     * */
     private Date end;
     /*
-    * 座位信息
-    * */
+     * 座位信息
+     * */
     private String seatInfo;
     /*
-    * 状态：0-退订中，1-正常，2-已退订
-    * */
+     * 状态：0-退订中，1-正常，2-已退订
+     * */
     private int state = 1;
     /*
-    * 所属用户
-    * */
+     * 所属用户
+     * */
     private String owner;
 
     public Order() {
