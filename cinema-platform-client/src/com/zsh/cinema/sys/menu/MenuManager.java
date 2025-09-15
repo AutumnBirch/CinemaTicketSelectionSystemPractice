@@ -29,8 +29,8 @@ public class MenuManager {
         menu1.addChild(new Menu(4,"返回主菜单","goBackMain",menu1));
 
         Menu menu2 = new Menu(2, "购买影票", "showChildren");
-        menu2.addChild(new Menu(1,"查看播放计划","getFilmPlan",menu2));
-        menu2.addChild(new Menu(2,"在线定座","orderSeatOnlin",menu2));
+        menu2.addChild(new Menu(1,"查看播放计划","getFilmPlanList",menu2));
+        menu2.addChild(new Menu(2,"在线定座","orderSeatOnline",menu2));
         menu2.addChild(new Menu(3,"返回主菜单","goBackMain",menu2));
 
         Menu menu3 = new Menu(3, "返回登录", "goBackLogin");

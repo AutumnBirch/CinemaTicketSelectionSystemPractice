@@ -168,6 +168,6 @@ public class Order implements Serializable {
     public String toString() {
         // 0-退订中 1-正常 2-已退订
         String stateStr = state == 0 ? "退订中" : state == 1 ? "正常" :"已退订";
-        return  id + "\t" + filmName + "\t" + DateUtil.date2str(begin) + "\t" + DateUtil.date2str(end) + "\t" + seatInfo + "\t" + owner;
+        return  id + "\t" + filmName + "\t" + DateUtil.date2str(begin) + "\t" + DateUtil.date2str(end) + "\t" + seatInfo + "\t" + owner + stateStr;
     }
 }
