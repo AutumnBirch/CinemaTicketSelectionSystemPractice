@@ -4,7 +4,6 @@ import com.zsh.cinema.sys.message.Message;
 
 import java.io.*;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
 
 /*
 * 套接字工具类
@@ -21,47 +20,6 @@ public class SocketUtil {
         <V>因为不确定接收的数据类型，故也选择使用泛型
      */
     public static <T,V> V sendMessage(Message<T> msg) {
-
-        /*Socket client = null;
-        ObjectOutputStream oos = null;
-        ObjectInputStream ois = null;
-
-        try {
-            client = new Socket(IP, PORT);
-            client.setSoTimeout(TIMEOUT); // 设置超时时间
-
-            // 获取输出流并发送消息
-            OutputStream os = client.getOutputStream();
-            oos = new ObjectOutputStream(os);
-            oos.writeObject(msg);
-            oos.flush();
-            client.shutdownOutput();
-
-            // 获取输入流并读取响应
-            InputStream is = client.getInputStream();
-            ois = new ObjectInputStream(is);
-            V result = (V) ois.readObject();
-            return result;
-        } catch (SocketTimeoutException e) {
-            System.err.println("服务器响应超时，请检查服务器是否正常运行");
-            return null;
-        } catch (IOException | ClassNotFoundException e) {
-            e.printStackTrace();
-            throw e;
-        } finally {
-            // 确保资源正确关闭
-            try {
-                if (ois != null) ois.close();
-                if (oos != null) oos.close();
-                if (client != null && !client.isClosed()) {
-                    client.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }*/
-
-
         try {
             Socket client = new Socket(IP,PORT);
             // 获取输出流
@@ -78,8 +36,10 @@ public class SocketUtil {
             InputStream is = client.getInputStream();
             // 将输入流包装为对象输入流
             ObjectInputStream ois = new ObjectInputStream(is);
+            //当调用ois.readObject()方法时，客户端线程会进入阻塞状态，暂停执行，等待服务器发送响应数据
+            //当服务器端没有发送响应数据时，客户端线程会阻塞在这里，等待服务器端发送数据
             V result = (V) ois.readObject();
-            // 告诉服务器端信息读取已经完毕
+            // 读到服务器返回的信息后告诉服务器端信息读取已经完毕
             client.shutdownInput();
             return result;
         }catch (Exception e) {
@@ -93,7 +53,5 @@ public class SocketUtil {
             e.printStackTrace();
             return null;
         }
-
-
     }
 }

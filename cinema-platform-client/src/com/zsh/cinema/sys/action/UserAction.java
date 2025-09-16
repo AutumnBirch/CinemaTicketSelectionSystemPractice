@@ -12,15 +12,20 @@ import java.util.*;
 * 用户行为
 * */
 public class UserAction {
-    /*
-    * 注册
-    * */
+    /**
+     * 功能：打印语句提示用户输入账号密码安全码，用户输入账户信息后，通过构造方法创建对应的用户对象，
+     * 再将用户对象和对应的用户行为通过Message类打包，由SocketUtil类发送给服务器端，并接受服务器端的返回值
+     * 如果返回值为1，则注册成功；如果返回值为-1，则账号已被注册；如果返回值为null或其他，则注册失败
+     * 参数：void
+     * 返回值：void
+     */
     public static void register() {
         String username = InputUtil.getInputText("请输入账号：");
         String password = InputUtil.getInputText("请输入密码：");
         String securityCode = InputUtil.getInputText("请输入安全码：");
 
         User user = new User(username,password,securityCode);
+
         // 要用对象流把user对象传递过去，user对象就得实现序列化接口
         Message<User> msg = new Message<>("register",user);
         // 发送数据
@@ -34,9 +39,14 @@ public class UserAction {
         }
     }
 
-    /*
-    * 登录
-    * */
+    /**
+     * 功能：打印语句提示用户输入账号密码，用户输入账户信息后，通过构造方法创建对应的用户对象，
+     * 再将用户对象和对应的用户行为通过Message类打包，由SocketUtil类发送给服务器端，
+     * 服务器端根据用户输入的账号密码验证用户身份，如果验证成功，则返回包含用户信息和登录状态的键值对；
+     * 如果验证失败，
+     * 参数：void
+     * 返回值：Map<String,Object> 包含用户信息和登录状态的键值对
+     */
     public static Map<String,Object> login(){
         String username = InputUtil.getInputText("请输入账号：");
         String password = InputUtil.getInputText("请输入密码：");
